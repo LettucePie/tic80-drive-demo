@@ -58,11 +58,18 @@ def BOOT
 	trace("Building Map Data")
 	build_map_data(5, 6, 3, 4)
 	trace("Map Data Built!")
-	$color_array.each do
-		|c_array|
-		trace("colorarraysize " + c_array.length().to_s)
-		
+	(0..100).each do
+		|x|
+		(0..100).each do
+			|y|
+			$color_array.each do
+				|c_array|
+				trace("colorarraysize " + c_array.length().to_s)
+				trace("color array has " + [x,y].to_s + " = " +c_array.include?([x,y]).to_s)
+			end
+		end
 	end
+	
 end
 
 

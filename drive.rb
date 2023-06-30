@@ -13,28 +13,8 @@ MAP_HEX = 0x08000
 
 $tile_color_data = []
 $map_data = []
-$color0 = []
-$color1 = []
-$color2 = []
-$color3 = []
-$color4 = []
-$color5 = []
-$color6 = []
-$color7 = []
-$color8 = []
-$color9 = []
-$color10 = []
-$color11 = []
-$color12 = []
-$color13 = []
-$color14 = []
-$color15 = []
-$color_array = [ $color0,
-	$color1, $color2, $color3, $color4,
-	$color5, $color6, $color7, $color8,
-	$color9, $color10, $color11, $color12,
-	$color13, $color14, $color15
-	]
+$fast_map_data = []
+$color_array = []
 $position = []
 $rotation = 0
 
@@ -58,23 +38,64 @@ def BOOT
 	trace("Building Map Data")
 	build_map_data(5, 6, 3, 4)
 	trace("Map Data Built!")
-	(0..100).each do
-		|x|
-		(0..100).each do
-			|y|
-			$color_array.each do
-				|c_array|
-				trace("colorarraysize " + c_array.length().to_s)
-				trace("color array has " + [x,y].to_s + " = " +c_array.include?([x,y]).to_s)
-			end
-		end
-	end
-	
+	#draw_fast_map()
+	#draw_map_data()
+	draw_tile_color_data()
 end
 
 
 def TIC
 	draw_map()
+end
+
+
+def draw_tile_color_data()
+	pos = [6, 10]
+	$tile_color_data.each do
+		|data|
+		print(data["tile"].to_s, pos[0] - 5, pos[1], -5)
+		data["data"].each do
+			|row|
+			y = row["row"]
+			x = 0
+				row["colors"].each do
+					|color|
+					point = add_vecs(pos, [x, y])
+					pix(point[0], point[1], color)
+					x += 1
+				end
+		end
+		pos = add_vecs(pos, [20, 0])
+	end
+end
+
+
+def draw_map_data()
+	$map_data.each do
+		|d|
+		pix(d["pos"][0], d["pos"][1], d["color"])
+	end
+end
+
+
+def draw_fast_map()
+	x = 0
+	$fast_map_data.each do
+		|fmd|
+		if fmd.kind_of?(Array) then
+			y = 0
+			fmd.each do
+				|c|
+				color = c
+				if c == nil then
+					color = 0
+				end
+				pix(x, y, color)
+				y += 1
+			end
+		end
+		x += 1
+	end
 end
 
 
@@ -91,11 +112,6 @@ end
 
 def build_map_data(xmin, xmax, ymin, ymax)
 	$map_data = []
-	structure_color_array()
-	smallest_x = xmin
-	largest_x = xmax
-	smallest_y = ymin
-	largest_y = ymax
 	(xmin..xmax).each do
 		|x|
 		(ymin..ymax).each do
@@ -116,7 +132,11 @@ def build_map_data(xmin, xmax, ymin, ymax)
 						"tile_pos" => [x, y],
 						"scaled_center" => offset_pos
 					}
-					$color_array[c]<<displaced_pos
+					y_array = []
+					if $fast_map_data.length()-1 < displaced_pos[0] then
+						$fast_map_data.insert(displaced_pos[0], [])
+					end
+					$fast_map_data[displaced_pos[0]].insert(displaced_pos[1], c)
 					col_y += 1
 				row_x += 1
 				end
@@ -146,6 +166,7 @@ def get_tile_data(tile)
 		end
 	end
 	if found then
+		trace("Tile Data for tile " + tile.to_s + " already configured")
 		return tile_data
 	else
 		return tile_color_array(tile)

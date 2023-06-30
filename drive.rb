@@ -13,7 +13,28 @@ MAP_HEX = 0x08000
 
 $tile_color_data = []
 $map_data = []
-$color_array = Array.new(16, Array.new())
+$color0 = []
+$color1 = []
+$color2 = []
+$color3 = []
+$color4 = []
+$color5 = []
+$color6 = []
+$color7 = []
+$color8 = []
+$color9 = []
+$color10 = []
+$color11 = []
+$color12 = []
+$color13 = []
+$color14 = []
+$color15 = []
+$color_array = [ $color0,
+	$color1, $color2, $color3, $color4,
+	$color5, $color6, $color7, $color8,
+	$color9, $color10, $color11, $color12,
+	$color13, $color14, $color15
+	]
 $position = []
 $rotation = 0
 
@@ -38,24 +59,10 @@ def BOOT
 	build_map_data(5, 6, 3, 4)
 	trace("Map Data Built!")
 	$color_array.each do
-		|c|
-		trace(c.length().to_s)
+		|c_array|
+		trace("colorarraysize " + c_array.length().to_s)
+		
 	end
-	# (0..5).each do
-	# 	|x|
-	# 	(0..5).each do
-	# 		|y|
-	# 		trace("Testing Map Pos " + x.to_s + " " + y.to_s)
-	# 		color_index = 0
-	# 		$color_array.each do
-	# 			|c|
-	# 			if c.include?([x,y]) then
-	# 				trace("Color is " + color_index.to_s)
-	# 			end
-	# 			color_index += 1
-	# 		end
-	# 	end	
-	# end
 end
 
 
@@ -64,10 +71,20 @@ def TIC
 end
 
 
+def structure_color_array()
+	#why
+	$color_array = [
+		[], [], [], [],
+		[], [], [], [],
+		[], [], [], [],
+		[], [], [], []
+	]
+end
+
+
 def build_map_data(xmin, xmax, ymin, ymax)
 	$map_data = []
-	$color_array = Array.new(16, Array.new())
-	$color_array.each {|c| trace(c.length().to_s)}
+	structure_color_array()
 	smallest_x = xmin
 	largest_x = xmax
 	smallest_y = ymin
@@ -92,9 +109,7 @@ def build_map_data(xmin, xmax, ymin, ymax)
 						"tile_pos" => [x, y],
 						"scaled_center" => offset_pos
 					}
-					trace("assigning color array " + c.to_s + " pos " + displaced_pos.to_s)
-					$color_array.at(c).push(displaced_pos)
-					trace("now color array " + c.to_s + " has a size of " +$color_array[c].length().to_s)
+					$color_array[c]<<displaced_pos
 					col_y += 1
 				row_x += 1
 				end

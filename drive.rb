@@ -11,8 +11,15 @@ TILE_NIB = TILE_HEX * 2
 MAP_HEX = 0x08000
 PI = 3.14159265359
 
-$usize = 32
-$vsize = 32
+$tl_point = [0, 0]
+$tr_point = [240, 0]
+$bl_point = [0, 136]
+$br_point = [240, 136]
+
+$tl_uv = [0, 0]
+$tr_uv = [200, 0]
+$bl_uv = [0, 128]
+$br_uv = [200, 128]
 
 $position = []
 $rotation = 0
@@ -25,28 +32,24 @@ end
 
 def TIC()
 	cls()
-	if btn(0) then $usize -= 1 end
-	if btn(1) then $usize += 1 end
-	if btn(2) then $vsize -= 1 end
-	if btn(3) then $vsize += 1 end
 	
 	ttri(
-		0,0,
-		64,0,
-		0,0,
-		$usize,0,
-		0,$vsize,
-		true,
-		14)
+		$tl_point[0], $tl_point[1],
+		$tr_point[0], $tr_point[1],
+	 $bl_point[0], $bl_point[1],
+		$tl_uv[0], $tl_uv[1],
+		$tr_uv[0], $tr_uv[1],
+		$bl_uv[0], $bl_uv[1],
+		1, 0)
+	
 	ttri(
-		64,0,
-		0,64,
-		64,64,
-		$usize,0,
-		0,$vsize,
-		$usize,$vsize,
-		true,
-		14)
+		$tr_point[0], $tr_point[1],
+		$br_point[0], $br_point[1],
+		$bl_point[0], $bl_point[1],
+		$tr_uv[0], $tr_uv[1],
+		$br_uv[0], $br_uv[1],
+		$bl_uv[0], $bl_uv[1],
+		1, 0)
 end
 
 

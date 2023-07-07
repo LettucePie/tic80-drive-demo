@@ -21,6 +21,9 @@ $tr_uv = [200, 0]
 $bl_uv = [0, 128]
 $br_uv = [200, 128]
 
+$target_uv = 0
+$uvs = []
+
 $position = []
 $rotation = 0
 
@@ -28,10 +31,27 @@ $rotation = 0
 def BOOT()
 	cls()
 	print("yes... it's triangle time")
+	$uvs << $tl_uv
+	$uvs << $tr_uv
+	$uvs << $bl_uv
+	$uvs << $br_uv
 end
 
 def TIC()
 	cls()
+	input_vec = [0, 0]
+	if btnp(4) then $target_uv += 1 end
+	if $target_uv > 3 then $target_uv = 0 end
+	if btn(0) then input_vec[1] += 1 end
+	if btn(1) then input_vec[1] -= 1 end
+	if btn(2) then input_vec[0] -= 1 end
+	if btn(3) then input_vec[0] += 1 end
+	
+	$uvs[$target_uv] = add_vecs($uvs[$target_uv], input_vec)
+	$tl_uv = $uvs[0]
+	$tr_uv = $uvs[1]
+	$bl_uv = $uvs[2]
+	$br_uv = $uvs[3]
 	
 	ttri(
 		$tl_point[0], $tl_point[1],
@@ -50,6 +70,9 @@ def TIC()
 		$br_uv[0], $br_uv[1],
 		$bl_uv[0], $bl_uv[1],
 		1, 0)
+	
+	print("TargetUV: " + $target_uv.to_s, 0, 5, 3)
+	print("UV: " + $uvs[$target_uv].to_s, 0, 15, 3)
 end
 
 

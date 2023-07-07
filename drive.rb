@@ -33,6 +33,10 @@ def BOOT
 	trace(get_tile_data(0).to_s)
 	trace(get_tile_data(1).to_s)
 	trace(get_tile_data(0).to_s)
+	get_tile_data(5)
+	get_tile_data(6)
+	get_tile_data(7)
+	get_tile_data(8)
 	$position = [14, 8]
 	$rotation = 0
 	trace("Building Map Data")
@@ -50,10 +54,12 @@ end
 
 
 def draw_tile_color_data()
-	pos = [6, 10]
+	trace("Drawing TileColor Data.")
+	pos = [12, 10]
 	$tile_color_data.each do
 		|data|
-		print(data["tile"].to_s, pos[0] - 5, pos[1], -5)
+		trace("Drawing Tile " + data["tile"].to_s)
+		print(data["tile"].to_s, pos[0] - 12, pos[1], -5)
 		data["data"].each do
 			|row|
 			y = row["row"]
@@ -65,7 +71,7 @@ def draw_tile_color_data()
 					x += 1
 				end
 		end
-		pos = add_vecs(pos, [20, 0])
+		pos = add_vecs(pos, [24, 0])
 	end
 end
 
@@ -169,6 +175,7 @@ def get_tile_data(tile)
 		trace("Tile Data for tile " + tile.to_s + " already configured")
 		return tile_data
 	else
+		trace("Creating Fresh Tile Data for tile " + tile.to_s)
 		return tile_color_array(tile)
 	end
 end
@@ -176,7 +183,7 @@ end
 
 def tile_color_array(tile)
 	address = TILE_HEX * 2
-	address += tile
+	address += (tile * 64)
 	sheet = []
 	num = 0
 	8.times do
@@ -305,6 +312,10 @@ end
 # 002:ccccceee8888cceeaaaa0cee888a0ceeccca0ccc0cca0c0c0cca0c0c0cca0c0c
 # 003:eccccccccc888888caaaaaaaca888888cacccccccacccccccacc0ccccacc0ccc
 # 004:ccccceee8888cceeaaaa0cee888a0ceeccca0cccccca0c0c0cca0c0c0cca0c0c
+# 005:4444444444444444444444444444444444444444444444444444444444444444
+# 006:5555555555555555555555555555555555555555555555555555555555555555
+# 007:6666666666666666666666666666666666666666666666666666666666666666
+# 008:7777777777777777777777777777777777777777777777777777777777777777
 # 017:cacccccccaaaaaaacaaacaaacaaaaccccaaaaaaac8888888cc000cccecccccec
 # 018:ccca00ccaaaa0ccecaaa0ceeaaaa0ceeaaaa0cee8888ccee000cceeecccceeee
 # 019:cacccccccaaaaaaacaaacaaacaaaaccccaaaaaaac8888888cc000cccecccccec

@@ -39,12 +39,11 @@ def BOOT
 	get_tile_data(8)
 	$position = [14, 8]
 	$rotation = 0
-	trace("Building Map Data")
 	build_map_data(5, 6, 3, 4)
 	trace("Map Data Built!")
 	#draw_fast_map()
-	#draw_map_data()
-	draw_tile_color_data()
+	draw_map_data()
+	#draw_tile_color_data()
 end
 
 
@@ -117,20 +116,25 @@ end
 
 
 def build_map_data(xmin, xmax, ymin, ymax)
+	trace("----Building MapData")
 	$map_data = []
 	(xmin..xmax).each do
 		|x|
+		trace("---Working on X Val " + x.to_s)
 		(ymin..ymax).each do
 			|y|
+			trace("--Working on Y Val " + y.to_s + " within X Val " + x.to_s)
 			t_data = get_tile_data(mget(x, y))
-			offset_pos = [(x * 8) - 4, (y * 8) - 4]
-			row_x = 0
+			offset_pos = [(x * 8) -4, (y * 8) -4]
+			col_y = 0
 			t_data["data"].each do
 				|d|
-				col_y = 0
+				trace("-Iteration of TileData is " + d.to_s)
+				row_x = 0
 				d["colors"].each do
 					|c|
 					displaced_pos = add_vecs(offset_pos, [row_x, col_y])
+					trace("DisplacedPosition is " + displaced_pos.to_s)
 					$map_data<<{
 						"pos" => displaced_pos,
 						"color" => c,
@@ -143,9 +147,11 @@ def build_map_data(xmin, xmax, ymin, ymax)
 						$fast_map_data.insert(displaced_pos[0], [])
 					end
 					$fast_map_data[displaced_pos[0]].insert(displaced_pos[1], c)
-					col_y += 1
-				row_x += 1
+					row_x += 1
 				end
+				trace("-Row Finished")
+				col_y += 1
+				trace("-Row_X and Col_Y " + [row_x,col_y].to_s)
 			end
 		end
 	end
@@ -162,6 +168,7 @@ end
 
 
 def get_tile_data(tile)
+	trace("Retrieving TileData for tile " + tile.to_s)
 	found = false
 	tile_data = 0
 	$tile_color_data.each do

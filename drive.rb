@@ -1,5 +1,5 @@
 # title:   game title
-# author:  game developer, email, etc.
+# author:  thelettucepie@gmail.com
 # desc:    short description
 # site:    website link
 # license: MIT License (change this to your license of choice)
@@ -7,229 +7,46 @@
 # script:  ruby
 
 TILE_HEX = 0x04000
-# Tile Nib and Peek4 needed for 4bpp
 TILE_NIB = TILE_HEX * 2
 MAP_HEX = 0x08000
 PI = 3.14159265359
 
-$tile_color_data = []
-$map_data = []
-$fast_map_data = []
-$color_array = []
+$usize = 32
+$vsize = 32
+
 $position = []
 $rotation = 0
 
 
-def BOOT
+def BOOT()
 	cls()
-	trace("Begin")
-	trace(TILE_HEX.to_s)
-	trace(MAP_HEX.to_s)
-	trace("Peek")
-	trace(peek(MAP_HEX).to_s)
-	trace(peek(MAP_HEX + 1).to_s)
-	trace(peek(MAP_HEX + 8).to_s)
-	trace("mget")
-	trace(mget(0, 0).to_s)
-	trace(get_tile_data(0).to_s)
-	trace(get_tile_data(1).to_s)
-	trace(get_tile_data(0).to_s)
-	get_tile_data(5)
-	get_tile_data(6)
-	get_tile_data(7)
-	get_tile_data(8)
-	$position = [14, 8]
-	$rotation = 0
-	build_map_data(5, 23, 3, 13)
-	trace("Map Data Built!")
-	#draw_fast_map()
-	draw_map_data($rotation)
-	#draw_tile_color_data()
+	print("yes... it's triangle time")
 end
 
-
-def TIC
+def TIC()
 	cls()
-	$rotation += PI * 0.01
-	if $rotation >= PI * 2 then
-		$rotation = 0.0
-	end
-	#draw_map_data($rotation)
-	draw_fast_map()
-	#draw_map()
-end
-
-
-def draw_tile_color_data()
-	trace("Drawing TileColor Data.")
-	pos = [12, 10]
-	$tile_color_data.each do
-		|data|
-		trace("Drawing Tile " + data["tile"].to_s)
-		print(data["tile"].to_s, pos[0] - 12, pos[1], -5)
-		data["data"].each do
-			|row|
-			y = row["row"]
-			x = 0
-				row["colors"].each do
-					|color|
-					point = add_vecs(pos, [x, y])
-					pix(point[0], point[1], color)
-					x += 1
-				end
-		end
-		pos = add_vecs(pos, [24, 0])
-	end
-end
-
-
-def draw_map_data(rot)
-	skew = vec_rotated([0, 1], rot)
-	prev_dir = [1, 0]
-	i = 0
-	$map_data.each do
-		|d|
-		point = d["pos"]
-		if i > 0 then
-			prev_point = $map_data[i - 1]["pos"]
-			direction = dir_to(prev_point, point)
-			rotated = vec_rotated(direction, rot)
-			point = add_vecs(point, rotated)
-		end
-		pix(point[0], point[1], d["color"])
-		i += 1	
-	end
-end
-
-
-def draw_fast_map()
-	direction = vec_rotated([0,3], $rotation)
-	direction = [direction[0].round, direction[1].round]
-	offset = [direction[0], direction[1]]
-	x = 0
-	x_total = $fast_map_data.length()
-	$fast_map_data.each do
-		|fmd|
-		if fmd.kind_of?(Array) then
-			y = 0
-			offset[1] = direction[1]
-			fmd.each do
-				|c|
-				color = c
-				if c == nil then
-					color = 0
-				end
-				pix(offset[0], offset[1], color)
-				y += 1
-				offset[1] += direction[1]
-			end
-		end
-		x += 1
-		offset[0] += direction[0]
-	end
-end
-
-
-def structure_color_array()
-	#why
-	$color_array = [
-		[], [], [], [],
-		[], [], [], [],
-		[], [], [], [],
-		[], [], [], []
-	]
-end
-
-
-def build_map_data(xmin, xmax, ymin, ymax)
-	$map_data = []
-	(xmin..xmax).each do
-		|x|
-		(ymin..ymax).each do
-			|y|
-			t_data = get_tile_data(mget(x, y))
-			offset_pos = [(x * 8) -4, (y * 8) -4]
-			col_y = 0
-			t_data["data"].each do
-				|d|
-				row_x = 0
-				d["colors"].each do
-					|c|
-					displaced_pos = add_vecs(offset_pos, [row_x, col_y])
-					$map_data<<{
-						"pos" => displaced_pos,
-						"color" => c,
-						"tile" => t_data["tile"],
-						"tile_pos" => [x, y],
-						"scaled_center" => offset_pos
-					}
-					y_array = []
-					if $fast_map_data.length()-1 < displaced_pos[0] then
-						$fast_map_data.insert(displaced_pos[0], [])
-					end
-					$fast_map_data[displaced_pos[0]].insert(displaced_pos[1], c)
-					row_x += 1
-				end
-				col_y += 1
-			end
-		end
-	end
-end
-
-
-def draw_map()
-	# set direction vector
-	dir = normalize(vec_rotated([0,1], $rotation))
-	far_point = scale_vec(dir, 5)
-	# establish closest tiles
-	#trace("Position " + $position.to_s)
+	if btn(0) then $usize -= 1 end
+	if btn(1) then $usize += 1 end
+	if btn(2) then $vsize -= 1 end
+	if btn(3) then $vsize += 1 end
 	
-end
-
-
-def rotate_map()
-	
-end
-
-
-def get_tile_data(tile)
-	trace("Retrieving TileData for tile " + tile.to_s)
-	found = false
-	tile_data = 0
-	$tile_color_data.each do
-		|t|
-		if t["tile"] == tile then
-			found = true
-			tile_data = t
-		end
-	end
-	if found then
-		trace("Tile Data for tile " + tile.to_s + " already configured")
-		return tile_data
-	else
-		trace("Creating Fresh Tile Data for tile " + tile.to_s)
-		return tile_color_array(tile)
-	end
-end
-
-
-def tile_color_array(tile)
-	address = TILE_HEX * 2
-	address += (tile * 64)
-	sheet = []
-	num = 0
-	8.times do
-		row = {"row" => num, "colors" => []}
-		8.times do
-			row["colors"] << peek4(address)
-			address += 1
-		end
-		sheet << row
-		num += 1
-	end
-	tile_data = {"tile" => tile, "data" => sheet}
-	$tile_color_data<<tile_data
-	return tile_data
+	ttri(
+		0,0,
+		64,0,
+		0,0,
+		$usize,0,
+		0,$vsize,
+		true,
+		14)
+	ttri(
+		64,0,
+		0,64,
+		64,64,
+		$usize,0,
+		0,$vsize,
+		$usize,$vsize,
+		true,
+		14)
 end
 
 

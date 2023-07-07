@@ -16,6 +16,9 @@ $tr_point = [240, 0]
 $bl_point = [0, 136]
 $br_point = [240, 136]
 
+$target_point = 0
+$points = []
+
 $tl_uv = [0, 0]
 $tr_uv = [200, 0]
 $bl_uv = [0, 128]
@@ -24,6 +27,8 @@ $br_uv = [200, 128]
 $target_uv = 0
 $uvs = []
 
+$point_or_uv = true
+
 $position = []
 $rotation = 0
 
@@ -31,6 +36,10 @@ $rotation = 0
 def BOOT()
 	cls()
 	print("yes... it's triangle time")
+	$points << $tl_point
+	$points << $tr_point
+	$points << $bl_point
+	$points << $br_point
 	$uvs << $tl_uv
 	$uvs << $tr_uv
 	$uvs << $bl_uv
@@ -40,14 +49,35 @@ end
 def TIC()
 	cls()
 	input_vec = [0, 0]
-	if btnp(4) then $target_uv += 1 end
-	if $target_uv > 3 then $target_uv = 0 end
+	if btnp(4) then 
+		$target_point += 1
+		$point_or_uv = true 
+	end
+	if $target_point > 3 then 
+		$target_point = 0 
+	end
+	if btnp(5) then 
+		$target_uv += 1 
+		$point_or_uv = false
+	end
+	if $target_uv > 3 then 
+		$target_uv = 0 
+	end
 	if btn(0) then input_vec[1] += 1 end
 	if btn(1) then input_vec[1] -= 1 end
 	if btn(2) then input_vec[0] -= 1 end
 	if btn(3) then input_vec[0] += 1 end
 	
-	$uvs[$target_uv] = add_vecs($uvs[$target_uv], input_vec)
+	if $point_or_uv then
+		$points[$target_point] = add_vecs($points[$target_point], input_vec)
+	else
+		$uvs[$target_uv] = add_vecs($uvs[$target_uv], input_vec)
+	end
+	
+	$tl_point = $points[0]
+	$tr_point = $points[1]
+	$bl_point = $points[2]
+	$br_point = $points[3]
 	$tl_uv = $uvs[0]
 	$tr_uv = $uvs[1]
 	$bl_uv = $uvs[2]
@@ -71,8 +101,15 @@ def TIC()
 		$bl_uv[0], $bl_uv[1],
 		1, 0)
 	
-	print("TargetUV: " + $target_uv.to_s, 0, 5, 3)
-	print("UV: " + $uvs[$target_uv].to_s, 0, 15, 3)
+	s1 = "TargetPoint: " + $target_point.to_s
+	s2 = "Point: " + $points[$target_point].to_s
+	if $point_or_uv == false then
+		s1 = "TargetUV: " + $target_uv.to_s
+		s2 = "UV: " + $uvs[$target_uv].to_s
+	end
+	
+	print(s1, 0, 5, 3)
+	print(s2, 0, 15, 3)
 end
 
 

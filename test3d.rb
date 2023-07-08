@@ -1,121 +1,87 @@
 # title:   game title
 # author:  thelettucepie@gmail.com
-# desc:    short description
-# site:    website link
+# desc:    ruby interpretation of btco's simpl3d.lua script
+# site:    https://github.com/btco/ticgeo3d/blob/95252ebc4a37db63d37e5f86c050106e1d829149/simpl3d.lua
 # license: MIT License (change this to your license of choice)
 # version: 0.1
 # script:  ruby
 
-TILE_HEX = 0x04000
-TILE_NIB = TILE_HEX * 2
-MAP_HEX = 0x08000
-PI = 3.14159265359
 
-$tl_point = [0, 0]
-$tr_point = [240, 0]
-$bl_point = [0, 136]
-$br_point = [240, 136]
 
-$target_point = 0
-$points = []
-
-$tl_uv = [0, 0]
-$tr_uv = [200, 0]
-$bl_uv = [0, 128]
-$br_uv = [200, 128]
-
-$target_uv = 0
-$uvs = []
-
-$point_or_uv = true
-
-$position = []
-$rotation = 0
+class Wall
+	attr_accessor :lx
+	def lx= lx
+		@lx = lx
+	end
+end
+$walls = []
 
 
 def BOOT()
-	cls()
-	print("yes... it's triangle time")
-	$bl_point = [0, 136]
-	$br_point = [240, 136]
-	$tl_point = [30, 68]
-	$tr_point = [210, 68]
-	$points << $tl_point
-	$points << $tr_point
-	$points << $bl_point
-	$points << $br_point
-	$uvs << $tl_uv
-	$uvs << $tr_uv
-	$uvs << $bl_uv
-	$uvs << $br_uv
+	#Init()
+	test = Wall.new()
+	trace(test.to_s)
+	test.lx = "hello lx"
+	trace(test.lx.to_s)
 end
 
 def TIC()
 	cls()
-	input_vec = [0, 0]
-	if btnp(4) then 
-		$target_point += 1
-		$point_or_uv = true 
-	end
-	if $target_point > 3 then 
-		$target_point = 0 
-	end
-	if btnp(5) then 
-		$target_uv += 1 
-		$point_or_uv = false
-	end
-	if $target_uv > 3 then 
-		$target_uv = 0 
-	end
-	if btn(0) then input_vec[1] += 1 end
-	if btn(1) then input_vec[1] -= 1 end
-	if btn(2) then input_vec[0] -= 1 end
-	if btn(3) then input_vec[0] += 1 end
-	
-	if $point_or_uv then
-		$points[$target_point] = add_vecs($points[$target_point], input_vec)
-	else
-		$uvs[$target_uv] = add_vecs($uvs[$target_uv], input_vec)
-	end
-	
-	$tl_point = $points[0]
-	$tr_point = $points[1]
-	$bl_point = $points[2]
-	$br_point = $points[3]
-	$tl_uv = $uvs[0]
-	$tr_uv = $uvs[1]
-	$bl_uv = $uvs[2]
-	$br_uv = $uvs[3]
-	
-	ttri(
-		$tl_point[0], $tl_point[1],
-		$tr_point[0], $tr_point[1],
-	 $bl_point[0], $bl_point[1],
-		$tl_uv[0], $tl_uv[1],
-		$tr_uv[0], $tr_uv[1],
-		$bl_uv[0], $bl_uv[1],
-		1, 0)
-	
-	ttri(
-		$tr_point[0], $tr_point[1],
-		$br_point[0], $br_point[1],
-		$bl_point[0], $bl_point[1],
-		$tr_uv[0], $tr_uv[1],
-		$br_uv[0], $br_uv[1],
-		$bl_uv[0], $bl_uv[1],
-		1, 0)
-	
-	s1 = "TargetPoint: " + $target_point.to_s
-	s2 = "Point: " + $points[$target_point].to_s
-	if $point_or_uv == false then
-		s1 = "TargetUV: " + $target_uv.to_s
-		s2 = "UV: " + $uvs[$target_uv].to_s
-	end
-	
-	print(s1, 0, 5, 3)
-	print(s2, 0, 15, 3)
 end
 
+###
+
+def Init()
+	SetCam(0, 0, 0, 0)
+end
+
+def AddWall(wall)
+	$walls << wall
+end
+
+def SetCam()
+
+end
+
+def Project()
+
+end
+
+def Render()
+
+end
+
+def ResetHBuffer()
+
+end
+
+def ProjectWall()
+
+end
+
+def PrepareHBuffer()
+
+end
+
+def AddWallHBuffer()
+
+end
+
+def RenderHBuffer()
+
+end
+
+def RenderTextureColor()
+
+end
+
+def TexturePerspective()
+
+end
+
+def TextureSample()
+
+end
 
 ###
 ### Tool Functions

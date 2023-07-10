@@ -6,23 +6,58 @@
 # version: 0.1
 # script:  ruby
 
-
-
 class Wall
 	attr_accessor :lx
+	
+	def initialize(lx, lz, rx, rz, tid)
+		@lx = lx
+		@lz = lz
+		@rx = rx
+		@rz = rz
+		@tid = tid
+	end
+	
 	def lx= lx
 		@lx = lx
 	end
+	def lz= lz
+		@lz = lz
+	end
+	def rx= rx
+		@rx = rx
+	end
+	def rz= rz
+		@rz = rz
+	end
+	def tid= tid
+		@tid = tid
+	end
 end
+
+### Camera Stuff?
+$ex = 0
+$ey = 0
+$ez = 0
+$yaw = 0
+$cosMy = 0
+$sinMy = 0
+$termA = 0
+$termB = 0
+
 $walls = []
 
 
 def BOOT()
-	#Init()
-	test = Wall.new()
-	trace(test.to_s)
-	test.lx = "hello lx"
-	trace(test.lx.to_s)
+	Init()
+	AddWall(Wall.new(0, 0, 50, 0, 1))
+	AddWall(Wall.new(50, 0, 50, -50, 3))
+	AddWall(Wall.new(50, -50, 0, -50, 5))
+	AddWall(Wall.new(0, -50, 0, 0, 7))
+	
+	AddWall(Wall.new(100, 0, 150, 0, 1))
+	AddWall(Wall.new(150, 0, 150, -50, 3))
+	AddWall(Wall.new(150, -50, 100, -50, 5))
+	AddWall(Wall.new(100, -50, 100, 0, 7))
 end
 
 def TIC()
@@ -39,8 +74,15 @@ def AddWall(wall)
 	$walls << wall
 end
 
-def SetCam()
-
+def SetCam(ex, ey, ez, yaw)
+	$ex = ex
+	$ey = ey
+	$ez = ez
+	$yaw = yaw
+	$cosMy = Math.cos(-yaw)
+	$sinMy = Math.sin(-yaw)
+	$termA = (($ex * -1) * $cosMy) - ($ez * $sinMy)
+	$termB = ($ex * $sinMy) - ($ez * $cosMy)
 end
 
 def Project()

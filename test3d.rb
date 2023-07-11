@@ -7,30 +7,36 @@
 # script:  ruby
 
 class Wall
-	attr_accessor :lx
+	attr_accessor :lx, :lz, :rx, :rz, :tid,
+		:slx, :slz, :slty, :slby,
+		:srx, :srz, :srty, :srby
 	
 	def initialize(lx, lz, rx, rz, tid)
+		trace("Initializing Wall")
 		@lx = lx
 		@lz = lz
 		@rx = rx
 		@rz = rz
 		@tid = tid
+		s = "Wall Initialized"
+		s += "\nlx: " + lx.to_s
+		s += "\nlz: " + lz.to_s
+		s += "\nrx: " + rx.to_s
+		s += "\nrz: " + rz.to_s
+		s += "\ntid: " + tid.to_s
+		trace(s)
+	end	
+	def screen_space_left(slx, slz, slty, slby)
+		@slx = slx
+		@slz = slz
+		@slty = slty
+		@slby = slby
 	end
-	
-	def lx= lx
-		@lx = lx
-	end
-	def lz= lz
-		@lz = lz
-	end
-	def rx= rx
-		@rx = rx
-	end
-	def rz= rz
-		@rz = rz
-	end
-	def tid= tid
-		@tid = tid
+	def screen_space_right(srx, srz, srty, srby)
+		@srx = srx
+		@srz = srz
+		@srty = srty
+		@srby = srby
 	end
 end
 
@@ -49,8 +55,14 @@ $cosMy = 0
 $sinMy = 0
 $termA = 0
 $termB = 0
+$near_clip = 0.1
+$far_clip = 1000
+
+$wall_bot = 0
+$wall_top = 50
 
 $walls = []
+$hbuffer = []
 
 
 def BOOT()
@@ -87,6 +99,8 @@ def TIC()
 	end
 	print([$x,$y,$z].to_s, 0, 10)
 	print($angle.to_s, 0, 20)
+	SetCam($x, $y, $z, $angle)
+	Render()
 end
 
 ###
@@ -110,24 +124,66 @@ def SetCam(ex, ey, ez, yaw)
 	$termB = ($ex * $sinMy) - ($ez * $cosMy)
 end
 
-def Project()
-
+def Project(x, y, z)
+	cos_val = $cosMy
+	sin_val = $sinMy
+	a_val = $termA
+	b_val = $termB
+	project_x = 0.9815 * cos_val * x + 0.9815 * sin_val * z + 0.9815 * a_val
+	project_y = 1.7321 * y - 1.7321 * $ey
+	project_z = sin_val * x - z * cos_val - b_val - 0.2
+	project_w = x * sin_val - z * cos_val - b_val
+	coord_x = project_x / project_w
+	coord_y = project_y / project_w
+	return [120 + coord_x * 120, 68 - coord_y * 68, project_z]
 end
 
 def Render()
-
+	PrepareHBuffer($hbuffer, $walls)
 end
 
-def ResetHBuffer()
-
+def ResetHBuffer(hbuff)
+	hbuff.each do
+		|h|
+	end
 end
 
-def ProjectWall()
-
+def ProjectWall(wall)
+	top_l = Project(wall.lx, $wall_top, wall.lz)
+	top_r = Project(wall.rx, $wall_top, wall.rz)
+	if top_r[0] < top_l[0] then return false end
+	if top_r[0] < 0 or top_l[0] >= 240 then return false end
+	bot_l = Project(wall.lx, $wall_bot, wall.lz)
+	bot_r = Project(wall.rx, $wall_bot, wall.rz)
+	
+	wall.screen_space_left(top_l[0], top_l[2], top_l[1], bot_l[1])
+	wall.screen_space_right(top_r[0], top_r[2], top_r[1], bot_r[1])
+	
+	if wall.slz < $near_clip or wall.srz < $near_clip then
+		return false
+	end
+	if wall.slz > $far_clip or wall.srz > $far_clip then
+		return false
+	end
+	return true
 end
 
-def PrepareHBuffer()
-
+def PrepareHBuffer(hbuff, walls)
+	ResetHBuffer(hbuff)
+	if walls.kind_of?(Array) then
+		i = 0
+		y = 30
+		walls.each do
+			|w|
+			tf = false
+			if ProjectWall(w) then
+				tf = true
+			end
+			print("Wall" + i.to_s + " is " + tf.to_s, 0, y)
+			i += 1
+			y += 8
+		end
+	end
 end
 
 def AddWallHBuffer()

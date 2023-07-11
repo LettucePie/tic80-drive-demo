@@ -34,6 +34,12 @@ class Wall
 	end
 end
 
+### Player Stuff?
+$x = 0
+$y = 0
+$z = 100
+$angle = 0
+
 ### Camera Stuff?
 $ex = 0
 $ey = 0
@@ -62,6 +68,25 @@ end
 
 def TIC()
 	cls()
+	up = 0
+	right = 0
+	strafe = false
+	if btn(0) then up += 1 end
+	if btn(1) then up -= 1 end
+	if btn(2) then right -= 1 end
+	if btn(3) then right += 1 end
+	strafe = btn(4)	
+	print(up.to_s + " " + right.to_s + " | " + strafe.to_s)
+	$x = $x - Math.sin($angle) * up * 2.0
+	$z = $z - Math.cos($angle) * up * 2.0
+	if strafe then
+		$x = $x - Math.sin($angle - 1.5708) * right * 2.0
+		$z = $z - Math.cos($angle - 1.5708) * right * 2.0
+	else
+		$angle = $angle - right * 0.03
+	end
+	print([$x,$y,$z].to_s, 0, 10)
+	print($angle.to_s, 0, 20)
 end
 
 ###

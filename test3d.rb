@@ -178,6 +178,7 @@ def PrepareHBuffer(hbuff, walls)
 			tf = false
 			if ProjectWall(w) then
 				tf = true
+				AddWallHBuffer(hbuff, w)
 			end
 			print("Wall" + i.to_s + " is " + tf.to_s, 0, y)
 			i += 1
@@ -186,8 +187,14 @@ def PrepareHBuffer(hbuff, walls)
 	end
 end
 
-def AddWallHBuffer()
-
+def AddWallHBuffer(hbuff, w)
+	start_x = [0, w.slx.round].max
+	end_x = [240, w.srx.round].min
+	i = 0
+	(start_x..end_x).each do
+		|x|
+		i += 1
+	end
 end
 
 def RenderHBuffer()
@@ -222,6 +229,8 @@ def lerp2(a, b, l)
     a[1] + (b[1] - a[1]) * l.clamp(0, 1)
   ]
 end
+
+
 
 
 def quad_bez(a, b, c, l)

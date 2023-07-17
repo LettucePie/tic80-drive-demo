@@ -1,4 +1,4 @@
-# title:   game title
+# title:   3D First Person Test
 # author:  thelettucepie@gmail.com
 # desc:    ruby interpretation of btco's simpl3d.lua script
 # site:    https://github.com/btco/ticgeo3d/blob/95252ebc4a37db63d37e5f86c050106e1d829149/simpl3d.lua
@@ -194,6 +194,7 @@ def AddWallHBuffer(hbuff, w)
 	(start_x..end_x).each do
 		|x|
 		i += 1
+		z = interp([w.slx, w.slz], [w.srx, w.srz], x)
 	end
 end
 
@@ -231,6 +232,27 @@ def lerp2(a, b, l)
 end
 
 
+def interp(a, b, f)
+	x1 = a[0]
+	y1 = a[1]
+	x2 = b[0]
+	y2 = b[1]
+	if x2 < x1 then
+		x1 = b[0]
+		x2 = a[0]
+		y1 = b[1]
+		y2 = b[0]
+	end
+	trace("Unknown A")
+	trace((f <= x1 and y1).to_s)
+	trace("Unknown B")
+	trace((f >= x2 and y2).to_s)
+	trace("Unknown C")
+	trace((y1 + (y2-y1) * (f-x1) / (x2-x1)).to_s)
+	return f <= x1 and y1 or \
+	f >= x2 and y2 or \
+	(y1 + (y2-y1) * (f-x1) / (x2-x1))
+end
 
 
 def quad_bez(a, b, c, l)

@@ -89,6 +89,7 @@ def BOOT()
 	AddWall(Wall.new(100, -50, 100, 0, 7))
 end
 
+
 def TIC()
 	cls()
 	up = 0
@@ -114,7 +115,9 @@ def TIC()
 	Render()
 end
 
+
 ###
+
 
 def Init()
 	SetCam(0, 0, 0, 0)
@@ -155,17 +158,16 @@ end
 
 def Render()
 	PrepareHBuffer($hbuffer, $walls)
+	RenderHBuffer($hbuffer)
 end
 
 
 def ResetHBuffer(hbuff)
 	if hbuff.length() <= 0 then
-		trace("Building HBuffer")
 		240.times do
 			hbuff << Buffer.new(0, nil)
 		end
 	else
-		trace("Resetting HBuffer")
 		hbuff.each do
 			|h|
 			h.wall = nil
@@ -225,17 +227,16 @@ def PrepareHBuffer(hbuff, walls)
 	end
 end
 
+
 def AddWallHBuffer(hbuff, w)
 	start_x = [0, w.slx.round].max
 	end_x = [239, w.srx.round].min
+	trace("Start: " + start_x.to_s + " End: " + end_x.to_s)
 #	i = 0
 	(start_x..end_x).each do
 		|i|
 #		i = x + 1
 		z = interp([w.slx, w.slz], [w.srx, w.srz], i)
-		trace("Step: " + i.to_s)
-		trace(hbuff[i].z.to_s)
-		trace(z.to_s)
 		if hbuff[i].z > z then
 			hbuff[i].z = z
 			hbuff[i].wall = w
@@ -243,21 +244,52 @@ def AddWallHBuffer(hbuff, w)
 	end
 end
 
-def RenderHBuffer()
 
+def RenderHBuffer(hbuff)
+	i = 0
+	hbuff.each do
+		|h|
+		w = h.wall
+		if w != nil then
+			uv = TexturePerspective(w.slx, w.slz, w.srx, w.srz, i)
+			RenderTextureColumn(w.tid, i, w.ty, w.by, uv)
+			i += 1
+		end
+	end
 end
 
-def RenderTextureColor()
 
+def RenderTextureColumn(tid, x, ty, by, uv)
+	line(x, ty, x, by, tid)
+	trace(ty.to_s)
+	aty = [ty, 0].max.round
+	aby = [by, 135].min.round
+	(aty..aby).each do
+		|y|
+		v = interp([ty, 0], [by, 1], y)
+		pix(x, y, TextureSample(tid, uv, v))
+	end
 end
 
-def TexturePerspective()
 
+def TexturePerspective(lx, lz, rx, rz, x)
+	a = interp([lx, 0], [rx, 1], x)
+	## I think I just made a UV?
+	return (a / ((1-a) / lz + a / rz)) / rz
 end
 
-def TextureSample()
 
+def TextureSample(tid, u, v)
+	sx = 16
+	sy = 16
+	tx = ((u * sx)%sx).round
+	ty = ((v * sy)%sy).round
+	spid = tid + (ty.to_i / 8) * 16 + (tx.to_i / 8)
+	tx = tx%8
+	ty = ty%8
+	return peek4(0x8000 + spid * 64 + ty * 8 + tx)
 end
+
 
 ###
 ### Tool Functions
@@ -288,9 +320,19 @@ def interp(a, b, f)
 		y1 = b[1]
 		y2 = b[0]
 	end
-	return (y1 + (y2-y1) * (f-x1) / (x2-x1))
-#	return f <= x1 and y1 or \
-#	f >= x2 and y2 or \
+	val = 0
+	if f >= x2 and y2 then val = 1 end
+	if val <= 0 then
+		val = (y1 + (y2-y1) * (f-x1) / (x2-x1))
+		if val == Float::INFINITY then
+			trace("Value is Infinite")
+			trace([x1, y1, x2, y2, f].to_s)
+		end
+	end
+	return val
+#	return (y1 + (y2-y1) * (f-x1) / (x2-x1))
+#	return (f <= x1 and y1) or \
+#	(f >= x2 and y2).to_i or \
 #	(y1 + (y2-y1) * (f-x1) / (x2-x1))
 end
 

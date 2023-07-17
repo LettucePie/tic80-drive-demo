@@ -9,7 +9,8 @@
 class Wall
 	attr_accessor :lx, :lz, :rx, :rz, :tid,
 		:slx, :slz, :slty, :slby,
-		:srx, :srz, :srty, :srby
+		:srx, :srz, :srty, :srby,
+		:ty, :by
 	
 	def initialize(lx, lz, rx, rz, tid)
 		trace("Initializing Wall")
@@ -38,6 +39,16 @@ class Wall
 		@srty = srty
 		@srby = srby
 	end
+end
+
+
+class Buffer
+	attr_accessor :z, :wall
+	
+	def initialize(z, wall)
+		@z = z
+		@wall = wall
+	end	
 end
 
 ### Player Stuff?
@@ -109,9 +120,11 @@ def Init()
 	SetCam(0, 0, 0, 0)
 end
 
+
 def AddWall(wall)
 	$walls << wall
 end
+
 
 def SetCam(ex, ey, ez, yaw)
 	$ex = ex
@@ -123,6 +136,7 @@ def SetCam(ex, ey, ez, yaw)
 	$termA = (($ex * -1) * $cosMy) - ($ez * $sinMy)
 	$termB = ($ex * $sinMy) - ($ez * $cosMy)
 end
+
 
 def Project(x, y, z)
 	cos_val = $cosMy
@@ -138,15 +152,28 @@ def Project(x, y, z)
 	return [120 + coord_x * 120, 68 - coord_y * 68, project_z]
 end
 
+
 def Render()
 	PrepareHBuffer($hbuffer, $walls)
 end
 
+
 def ResetHBuffer(hbuff)
-	hbuff.each do
-		|h|
+	if hbuff.length() <= 0 then
+		trace("Building HBuffer")
+		240.times do
+			hbuff << Buffer.new(0, nil)
+		end
+	else
+		trace("Resetting HBuffer")
+		hbuff.each do
+			|h|
+			h.wall = nil
+			h.z = 1024
+		end
 	end
 end
+
 
 def ProjectWall(wall)
 	top_l = Project(wall.lx, $wall_top, wall.lz)
@@ -168,6 +195,7 @@ def ProjectWall(wall)
 	return true
 end
 
+
 def PrepareHBuffer(hbuff, walls)
 	ResetHBuffer(hbuff)
 	if walls.kind_of?(Array) then
@@ -185,16 +213,33 @@ def PrepareHBuffer(hbuff, walls)
 			y += 8
 		end
 	end
+	i = 0
+	hbuff.each do
+		|h|
+		if h.wall != nil then
+			w = h.wall
+			w.ty = interp([w.slx, w.slty], [w.srx, w.srty], i)
+			w.by = interp([w.slx, w.slby], [w.srx, w.srby], i)
+			i += 1
+		end
+	end
 end
 
 def AddWallHBuffer(hbuff, w)
 	start_x = [0, w.slx.round].max
-	end_x = [240, w.srx.round].min
-	i = 0
+	end_x = [239, w.srx.round].min
+#	i = 0
 	(start_x..end_x).each do
-		|x|
-		i += 1
-		z = interp([w.slx, w.slz], [w.srx, w.srz], x)
+		|i|
+#		i = x + 1
+		z = interp([w.slx, w.slz], [w.srx, w.srz], i)
+		trace("Step: " + i.to_s)
+		trace(hbuff[i].z.to_s)
+		trace(z.to_s)
+		if hbuff[i].z > z then
+			hbuff[i].z = z
+			hbuff[i].wall = w
+		end
 	end
 end
 
@@ -243,15 +288,10 @@ def interp(a, b, f)
 		y1 = b[1]
 		y2 = b[0]
 	end
-	trace("Unknown A")
-	trace((f <= x1 and y1).to_s)
-	trace("Unknown B")
-	trace((f >= x2 and y2).to_s)
-	trace("Unknown C")
-	trace((y1 + (y2-y1) * (f-x1) / (x2-x1)).to_s)
-	return f <= x1 and y1 or \
-	f >= x2 and y2 or \
-	(y1 + (y2-y1) * (f-x1) / (x2-x1))
+	return (y1 + (y2-y1) * (f-x1) / (x2-x1))
+#	return f <= x1 and y1 or \
+#	f >= x2 and y2 or \
+#	(y1 + (y2-y1) * (f-x1) / (x2-x1))
 end
 
 
